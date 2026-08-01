@@ -10,9 +10,6 @@ echo   ImageOCR Pro - First Time Setup
 echo ============================================
 echo.
 
-where winget >nul 2>nul
-set HAS_WINGET=%errorlevel%
-
 rem --- Find a real Python, avoiding Windows' fake "App Execution Alias" ------
 rem Windows ships a placeholder python.exe that "where python" happily finds
 rem even when no real Python is installed; running it just prints a Microsoft
@@ -39,33 +36,18 @@ if not defined PYTHON_CMD (
 )
 
 if not defined PYTHON_CMD (
-    if %HAS_WINGET% equ 0 (
-        echo Python was not found - installing it automatically via winget...
-        call :install_via_winget "Python.Python.3.12"
-        py -3 --version >nul 2>nul
-        if !errorlevel! equ 0 set PYTHON_CMD=py -3
-        if not defined PYTHON_CMD (
-            for /d %%D in ("%LocalAppData%\Programs\Python\Python3*") do (
-                if exist "%%D\python.exe" set PYTHON_CMD="%%D\python.exe"
-            )
-        )
-    )
-)
-
-if not defined PYTHON_CMD (
+    echo Python was not found on this computer.
     echo.
-    echo Could not find a working Python installation.
+    echo Please install it, then run this file again:
+    echo   1. Go to https://www.python.org/downloads/
+    echo   2. Download and run the Windows installer
+    echo   3. IMPORTANT: tick the box "Add python.exe to PATH" during install
     echo.
-    echo This is very often caused by Windows' "App Execution Alias" for
-    echo Python, which blocks the real python.exe. To fix it:
+    echo If you already installed Python and still see this message, it is
+    echo very often caused by Windows' "App Execution Alias" for Python:
     echo   1. Open Settings ^> Apps ^> Advanced app settings ^> App execution aliases
-    echo      ^(on older Windows: Settings ^> Apps ^> Apps ^& features ^> App execution aliases^)
     echo   2. Turn OFF the switches next to "python.exe" and "python3.exe"
     echo   3. Run this file again
-    echo.
-    echo If that setting isn't there, install Python manually from
-    echo https://www.python.org/downloads/ ^(tick "Add python.exe to PATH"
-    echo during install^), then run this file again.
     echo.
     pause
     exit /b 1
@@ -81,24 +63,18 @@ if exist "%ProgramFiles%\Tesseract-OCR\tesseract.exe" set TESSERACT_FOUND=1
 if exist "%ProgramFiles(x86)%\Tesseract-OCR\tesseract.exe" set TESSERACT_FOUND=1
 
 if !TESSERACT_FOUND! equ 0 (
-    if %HAS_WINGET% equ 0 (
-        echo Tesseract OCR was not found - installing it automatically via winget...
-        call :install_via_winget "UB-Mannheim.TesseractOCR"
-        echo.
-        echo Continuing setup - the app will find Tesseract automatically
-        echo even if this window's PATH hasn't refreshed yet.
-    ) else (
-        echo Tesseract OCR was not found on this computer, and it could not be
-        echo installed automatically ^(winget is unavailable^).
-        echo.
-        echo Please install it manually, then run this file again:
-        echo   1. Go to https://github.com/UB-Mannheim/tesseract/wiki
-        echo   2. Download and run the Windows installer ^(default options are fine^)
-        echo.
-        pause
-        exit /b 1
-    )
+    echo.
+    echo Tesseract OCR was not found on this computer.
+    echo.
+    echo Please install it, then run this file again:
+    echo   1. Go to https://github.com/UB-Mannheim/tesseract/wiki
+    echo   2. Download and run the Windows installer ^(default options are fine^)
+    echo.
+    pause
+    exit /b 1
 )
+
+echo Tesseract OCR: found
 
 rem --- Create the virtual environment ------------------------------------------
 echo.
@@ -116,7 +92,6 @@ if not exist ".venv\Scripts\activate.bat" (
 
 call .venv\Scripts\activate.bat
 
-echo.
 if not exist "requirements.txt" (
     echo.
     echo ============================================
@@ -129,14 +104,14 @@ if not exist "requirements.txt" (
     echo.
     dir /b
     echo.
-    echo Please make sure you extracted the ENTIRE zip file ^(not just
-    echo copied setup_windows.bat by itself^) into one folder, then
-    echo double-click setup_windows.bat directly from inside that folder.
+    echo Please make sure you extracted the ENTIRE zip file into one
+    echo folder, then run setup_windows.bat from directly inside it.
     echo.
     pause
     exit /b 1
 )
 
+echo.
 echo Installing required packages - this can take a few minutes, please wait...
 python -m pip install --upgrade pip >nul
 pip install -r requirements.txt
@@ -155,19 +130,3 @@ echo   Double-click run_windows.bat to start ImageOCR Pro.
 echo ============================================
 pause
 exit /b 0
-
-rem --- Helper: install a winget package, elevating only if it turns out to ---
-rem require admin rights. This deliberately does NOT elevate the whole
-rem script (that resets the working directory to System32 on Windows and
-rem broke relative paths like requirements.txt) - only this one install
-rem command runs elevated, in an isolated child process, when needed.
-:install_via_winget
-set WINGET_ID=%~1
-echo ^(Windows may show a permission/confirmation prompt - please accept it.^)
-winget install -e --id %WINGET_ID% --accept-source-agreements --accept-package-agreements
-if !errorlevel! neq 0 (
-    echo That install needs administrator permission - requesting it now,
-    echo please click "Yes" on the Windows prompt that appears...
-    powershell -NoProfile -Command "Start-Process winget -ArgumentList 'install -e --id %WINGET_ID% --accept-source-agreements --accept-package-agreements' -Verb RunAs -Wait"
-)
-exit /b
