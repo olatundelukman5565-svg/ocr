@@ -1,29 +1,27 @@
 # ImageOCR Pro — Windows Quick Start (no technical experience needed)
 
-## Step 1 — Install two programs (one-time only)
-
-1. **Python**: go to https://www.python.org/downloads/ , click the big yellow
-   "Download Python" button, run the installer. **On the first install
-   screen, make sure to tick the checkbox that says "Add python.exe to
-   PATH"** before clicking Install.
-2. **Tesseract OCR**: go to https://github.com/UB-Mannheim/tesseract/wiki ,
-   download the Windows installer link near the top, run it, and just click
-   Next/Install through the default options.
-
-## Step 2 — Unzip the app
+## Step 1 — Unzip the app
 
 Right-click the downloaded `ImageOCR_Pro_source.zip` file → **Extract All…**
 → pick a folder you'll remember (e.g. your Desktop) → Extract.
 
-## Step 3 — Run setup (one-time only)
+## Step 2 — Run setup
 
 Open the extracted folder and **double-click `setup_windows.bat`**.
 
-A black window will open and install everything the app needs — this can
-take a few minutes the first time. When it says "Setup complete!", you're
-done with this step.
+- If Python and/or Tesseract OCR aren't already on your computer, the
+  script installs them for you automatically (you may see a Windows
+  permission popup — click **Yes**). If it installs something, it will
+  ask you to close the window and double-click `setup_windows.bat` again
+  — that's expected, just do it once more.
+- Once both are present, it installs the app's own requirements — this
+  can take a few minutes. When you see "Setup complete!", you're done.
 
-## Step 4 — Start the app
+(If your PC is older/managed and doesn't have `winget`, the script will
+instead show you two manual download links — just install those and run
+`setup_windows.bat` again.)
+
+## Step 3 — Start the app
 
 **Double-click `run_windows.bat`** any time you want to open ImageOCR Pro.
 
@@ -36,8 +34,6 @@ see it extract the text.
 ## If something goes wrong
 
 - A black window that closes immediately or shows red text usually means
-  Step 1 wasn't completed — double check Python and Tesseract are both
-  installed (reopen the installers if unsure).
-- If `setup_windows.bat` says Python or Tesseract wasn't found right after
-  you installed them, close and reopen the folder (or restart your
-  computer) so Windows picks up the changes, then try again.
+  setup didn't fully finish — just double-click `setup_windows.bat` again.
+- Copy whatever the black window says and send it back — that message is
+  enough to figure out what went wrong.
