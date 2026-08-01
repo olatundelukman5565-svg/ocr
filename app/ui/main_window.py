@@ -7,6 +7,7 @@ import logging
 
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
+    QApplication,
     QFileDialog,
     QMainWindow,
     QMessageBox,
@@ -45,7 +46,7 @@ class MainWindow(QMainWindow):
         self.db = DBManager()
 
         self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
-        self.resize(1440, 900)
+        self._size_to_screen()
 
         self._build_pages()
         self._build_layout()
@@ -53,6 +54,19 @@ class MainWindow(QMainWindow):
         self._build_status_bar()
         self.apply_theme(self.settings.get("theme", "dark"))
         self._navigate("home")
+
+    def _size_to_screen(self) -> None:
+        """Size the window to fit within the actual screen instead of a
+        fixed 1440x900 that can exceed smaller/older laptop displays."""
+        screen = self.screen() or QApplication.primaryScreen()
+        available = screen.availableGeometry()
+        width = min(1440, available.width() - 40)
+        height = min(900, available.height() - 40)
+        self.resize(width, height)
+        self.move(
+            available.x() + (available.width() - width) // 2,
+            available.y() + (available.height() - height) // 2,
+        )
 
     # -- construction ------------------------------------------------------------------
     def _build_pages(self) -> None:
@@ -207,8 +221,6 @@ class MainWindow(QMainWindow):
 
     # -- theme -------------------------------------------------------------------------
     def apply_theme(self, theme: str) -> None:
-        from PySide6.QtWidgets import QApplication
-
         QApplication.instance().setStyleSheet(stylesheet_for(theme))
         self.settings.set("theme", theme)
 
