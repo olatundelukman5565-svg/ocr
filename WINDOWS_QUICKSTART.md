@@ -9,13 +9,11 @@ Right-click the downloaded `ImageOCR_Pro_source.zip` file → **Extract All…**
 
 Open the extracted folder and **double-click `setup_windows.bat`**.
 
-- A **Windows permission popup ("User Account Control")** will appear
-  almost immediately — click **Yes**. This is expected: installing
-  Python/Tesseract needs it. A new black window (titled "Administrator")
-  will open and continue automatically; the first window will disappear —
-  that's normal, keep going in the new one.
 - If Python and/or Tesseract OCR aren't already on your computer, the
-  script installs them for you automatically.
+  script installs them for you automatically. If either install needs
+  administrator permission, a **Windows permission popup** appears right
+  at that point — click **Yes**. The same black window keeps running
+  throughout; nothing needs to be closed or reopened.
 - Once both are present, it installs the app's own requirements — this
   can take a few minutes. When you see "Setup complete!", you're done.
 
@@ -46,9 +44,12 @@ see it extract the text.
      aliases**
   2. Turn **off** the switches next to `python.exe` and `python3.exe`
   3. Double-click `setup_windows.bat` again
-- **"Access is denied."** right after starting — you likely clicked
-  **No** (or it didn't appear) on the Windows permission popup. Right-click
-  `setup_windows.bat` → **Run as administrator**, and click **Yes** on the
-  popup this time. If your computer is a work/managed computer, your IT
-  department may need to grant permission or install Python/Tesseract for
-  you directly.
+- **"Access is denied."** during a Python/Tesseract install — a
+  permission popup should have appeared right after; make sure to click
+  **Yes** on it. If no popup appears at all and it just fails, your
+  computer may be a work/managed one where your account isn't allowed to
+  install software — your IT department would need to grant permission or
+  install Python/Tesseract for you directly.
+- **"No such file or directory: 'requirements.txt'"** — this was a bug in
+  an earlier version of this script; make sure you're using the latest
+  download (delete any old extracted copies first to avoid confusion).
