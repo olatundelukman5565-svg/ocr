@@ -1,5 +1,19 @@
 @echo off
 setlocal enabledelayedexpansion
+
+rem --- Re-launch elevated if we're not already running as Administrator -------
+rem Installing Python/Tesseract via winget often needs admin rights; without
+rem them winget fails with a bare "Access is denied." instead of a helpful
+rem prompt. "net session" only succeeds when elevated, so we use it as a
+rem reliable admin check and relaunch ourselves via a UAC prompt if needed.
+net session >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Requesting administrator permission - please click "Yes" on the
+    echo Windows prompt that appears...
+    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -WorkingDirectory '%~dp0' -Verb RunAs"
+    exit /b
+)
+
 echo ============================================
 echo   ImageOCR Pro - First Time Setup
 echo ============================================
