@@ -6,6 +6,7 @@ is used as the application's default. It runs entirely on CPU.
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 
 import numpy as np
@@ -23,6 +24,45 @@ try:
 except ImportError:  # pragma: no cover
     _IMPORT_OK = False
 
+# Common install locations for platforms/installers that don't reliably put
+# `tesseract` on PATH for an already-open shell (notably the UB-Mannheim
+# Windows installer, whose PATH update often only takes effect in *new*
+# shells/processes started after install). Checked as a fallback so the app
+# works immediately after installation without requiring a reboot.
+_FALLBACK_BINARY_PATHS = [
+    os.path.expandvars(r"%ProgramFiles%\Tesseract-OCR\tesseract.exe"),
+    os.path.expandvars(r"%ProgramFiles(x86)%\Tesseract-OCR\tesseract.exe"),
+    os.path.expandvars(r"%LocalAppData%\Programs\Tesseract-OCR\tesseract.exe"),
+    "/usr/local/bin/tesseract",
+    "/opt/homebrew/bin/tesseract",
+    "/usr/bin/tesseract",
+]
+
+
+def _locate_tesseract_binary() -> str | None:
+    """Return a usable tesseract binary path: PATH first, then well-known
+    install locations. Also honours a TESSERACT_CMD env var override.
+    """
+    if override := os.environ.get("TESSERACT_CMD"):
+        if os.path.isfile(override):
+            return override
+    found = shutil.which("tesseract")
+    if found:
+        return found
+    for candidate in _FALLBACK_BINARY_PATHS:
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+if _IMPORT_OK:
+    _binary_path = _locate_tesseract_binary()
+    if _binary_path and shutil.which("tesseract") is None:
+        # Only PATH-based `tesseract` calls are visible to shutil.which();
+        # point pytesseract directly at the binary we found instead.
+        pytesseract.pytesseract.tesseract_cmd = _binary_path
+        logger.info("Located Tesseract binary outside PATH: %s", _binary_path)
+
 
 class TesseractEngine(OCREngine):
     name = "tesseract"
@@ -39,7 +79,7 @@ class TesseractEngine(OCREngine):
     def is_available(self) -> bool:
         if not _IMPORT_OK:
             return False
-        if shutil.which("tesseract") is None:
+        if _locate_tesseract_binary() is None:
             return False
         try:
             pytesseract.get_tesseract_version()
