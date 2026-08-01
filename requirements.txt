@@ -1,0 +1,35 @@
+# ImageOCR Pro -- Python dependencies
+#
+# Core (required):
+PySide6>=6.6
+opencv-python-headless>=4.9
+Pillow>=10.2
+numpy>=1.26
+PyMuPDF>=1.23
+pytesseract>=0.3.10
+python-docx>=1.1
+openpyxl>=3.1
+reportlab>=4.1
+cryptography>=42.0
+langdetect>=1.0.9
+pyspellchecker>=0.8
+
+# Optional OCR engines -- switchable at runtime from Settings.
+# Tesseract (the default) additionally requires the system "tesseract-ocr"
+# binary (apt install tesseract-ocr / brew install tesseract / the official
+# Windows installer). EasyOCR and PaddleOCR are large (multi-GB with CUDA
+# extras) and are only imported lazily, so the app runs fully offline with
+# Tesseract alone if you skip these:
+easyocr>=1.7
+paddleocr>=2.7
+paddlepaddle>=2.6
+
+# Optional: converts PDF pages to images via the poppler `pdftoppm` binary
+# as an alternative rasterizer to PyMuPDF (poppler-utils must be installed).
+pdf2image>=1.17
+
+# Packaging
+pyinstaller>=6.3
+
+# Testing
+pytest>=8.0
