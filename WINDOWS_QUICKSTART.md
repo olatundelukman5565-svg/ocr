@@ -33,6 +33,11 @@ see it extract the text.
 
 ## If something goes wrong
 
+- **If the window flashes and disappears before you can read it**,
+  double-click **`debug_setup.bat`** instead. It runs the same setup but
+  saves everything to a file and opens it in Notepad automatically at the
+  end — copy everything from that Notepad window (Ctrl+A, then Ctrl+C)
+  and send it back.
 - A black window that closes immediately or shows red text usually means
   setup didn't fully finish — just double-click `setup_windows.bat` again.
 - Copy whatever the black window says and send it back — that message is
