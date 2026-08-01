@@ -1,4 +1,6 @@
 @echo off
+cd /d "%~dp0"
+
 if not exist ".venv\Scripts\activate.bat" (
     echo It looks like setup hasn't been run yet.
     echo Please double-click setup_windows.bat first.

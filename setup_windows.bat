@@ -1,6 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
 
+rem Always operate from the folder this script lives in, regardless of how
+rem it was launched (double-click, right-click "Run as administrator", or
+rem the elevation relaunch below) - Start-Process's -WorkingDirectory can be
+rem unreliable with paths containing spaces, so we don't depend on it.
+cd /d "%~dp0"
+
 rem --- Re-launch elevated if we're not already running as Administrator -------
 rem Installing Python/Tesseract via winget often needs admin rights; without
 rem them winget fails with a bare "Access is denied." instead of a helpful
