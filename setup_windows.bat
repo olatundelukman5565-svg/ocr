@@ -92,33 +92,29 @@ if not exist ".venv\Scripts\activate.bat" (
 
 call .venv\Scripts\activate.bat
 
-if not exist "requirements.txt" (
-    echo.
-    echo ============================================
-    echo   Cannot find requirements.txt
-    echo ============================================
-    echo This script is running from:
-    echo   %cd%
-    echo and expected to find requirements.txt right there, but it isn't.
-    echo Here is what IS in this folder:
-    echo.
-    dir /b
-    echo.
-    echo Please make sure you extracted the ENTIRE zip file into one
-    echo folder, then run setup_windows.bat from directly inside it.
-    echo.
-    pause
-    exit /b 1
-)
-
 echo.
 echo Installing required packages - this can take a few minutes, please wait...
 python -m pip install --upgrade pip >nul
 pip install -r requirements.txt
 if !errorlevel! neq 0 (
     echo.
-    echo Installing the required packages failed - please copy the messages
-    echo above and send them back for help.
+    if not exist "requirements.txt" (
+        echo ============================================
+        echo   Cannot find requirements.txt
+        echo ============================================
+        echo This script is running from:
+        echo   %cd%
+        echo Here is what IS in this folder:
+        echo.
+        dir /b
+        echo.
+        echo Please make sure you extracted the ENTIRE zip file into one
+        echo folder, then run setup_windows.bat from directly inside it.
+    ) else (
+        echo Installing the required packages failed - please copy the
+        echo messages above and send them back for help.
+    )
+    echo.
     pause
     exit /b 1
 )
