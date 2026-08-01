@@ -2,23 +2,8 @@
 setlocal enabledelayedexpansion
 
 rem Always operate from the folder this script lives in, regardless of how
-rem it was launched (double-click, right-click "Run as administrator", or
-rem the elevation relaunch below) - Start-Process's -WorkingDirectory can be
-rem unreliable with paths containing spaces, so we don't depend on it.
+rem it was launched (double-click, right-click "Run as administrator", etc).
 cd /d "%~dp0"
-
-rem --- Re-launch elevated if we're not already running as Administrator -------
-rem Installing Python/Tesseract via winget often needs admin rights; without
-rem them winget fails with a bare "Access is denied." instead of a helpful
-rem prompt. "net session" only succeeds when elevated, so we use it as a
-rem reliable admin check and relaunch ourselves via a UAC prompt if needed.
-net session >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Requesting administrator permission - please click "Yes" on the
-    echo Windows prompt that appears...
-    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -WorkingDirectory '%~dp0' -Verb RunAs"
-    exit /b
-)
 
 echo ============================================
 echo   ImageOCR Pro - First Time Setup
@@ -56,9 +41,7 @@ if not defined PYTHON_CMD (
 if not defined PYTHON_CMD (
     if %HAS_WINGET% equ 0 (
         echo Python was not found - installing it automatically via winget...
-        echo ^(Windows may show a permission/confirmation prompt - please accept it.^)
-        winget install -e --id Python.Python.3.12 --accept-source-agreements --accept-package-agreements
-        echo.
+        call :install_via_winget "Python.Python.3.12"
         py -3 --version >nul 2>nul
         if !errorlevel! equ 0 set PYTHON_CMD=py -3
         if not defined PYTHON_CMD (
@@ -100,11 +83,10 @@ if exist "%ProgramFiles(x86)%\Tesseract-OCR\tesseract.exe" set TESSERACT_FOUND=1
 if !TESSERACT_FOUND! equ 0 (
     if %HAS_WINGET% equ 0 (
         echo Tesseract OCR was not found - installing it automatically via winget...
-        echo ^(Windows may show a permission/confirmation prompt - please accept it.^)
-        winget install -e --id UB-Mannheim.TesseractOCR --accept-source-agreements --accept-package-agreements
+        call :install_via_winget "UB-Mannheim.TesseractOCR"
         echo.
-        echo Tesseract has been installed. The app will find it automatically
-        echo even though this window's PATH hasn't refreshed - continuing setup...
+        echo Continuing setup - the app will find Tesseract automatically
+        echo even if this window's PATH hasn't refreshed yet.
     ) else (
         echo Tesseract OCR was not found on this computer, and it could not be
         echo installed automatically ^(winget is unavailable^).
@@ -152,3 +134,20 @@ echo   Setup complete!
 echo   Double-click run_windows.bat to start ImageOCR Pro.
 echo ============================================
 pause
+exit /b 0
+
+rem --- Helper: install a winget package, elevating only if it turns out to ---
+rem require admin rights. This deliberately does NOT elevate the whole
+rem script (that resets the working directory to System32 on Windows and
+rem broke relative paths like requirements.txt) - only this one install
+rem command runs elevated, in an isolated child process, when needed.
+:install_via_winget
+set WINGET_ID=%~1
+echo ^(Windows may show a permission/confirmation prompt - please accept it.^)
+winget install -e --id %WINGET_ID% --accept-source-agreements --accept-package-agreements
+if !errorlevel! neq 0 (
+    echo That install needs administrator permission - requesting it now,
+    echo please click "Yes" on the Windows prompt that appears...
+    powershell -NoProfile -Command "Start-Process winget -ArgumentList 'install -e --id %WINGET_ID% --accept-source-agreements --accept-package-agreements' -Verb RunAs -Wait"
+)
+exit /b
