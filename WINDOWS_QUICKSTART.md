@@ -37,3 +37,10 @@ see it extract the text.
   setup didn't fully finish — just double-click `setup_windows.bat` again.
 - Copy whatever the black window says and send it back — that message is
   enough to figure out what went wrong.
+- **"Python was not found; run without arguments to install from the
+  Microsoft Store…"** — this means Windows' built-in placeholder for
+  Python (an "App execution alias") is blocking the real one. Fix:
+  1. Open **Settings → Apps → Advanced app settings → App execution
+     aliases**
+  2. Turn **off** the switches next to `python.exe` and `python3.exe`
+  3. Double-click `setup_windows.bat` again
